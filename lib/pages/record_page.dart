@@ -35,6 +35,7 @@ class _RecordPageState extends State<RecordPage> {
 
     return Column(
       children: [
+        Text(context.watch<RecordPageModelView>().getResultMessage()),
         ElevatedButton(
           onPressed: () {
             mv.onPressButton();
