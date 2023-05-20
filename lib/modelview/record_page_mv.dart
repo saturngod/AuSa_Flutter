@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ausa_flutter/utils/ausa_pusher.dart';
@@ -6,22 +7,45 @@ import 'package:http_parser/http_parser.dart';
 import 'package:record/record.dart';
 import 'package:ausa_flutter/utils/file_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:ausa_flutter/extensions/number_extension.dart';
 
 class RecordPageModelView with ChangeNotifier {
   final record = Record();
   var _currentFile = "";
   var _resultMessage = "";
+  int _recordDuration = 0;
+  Timer? _timer;
   RecordState recordState = RecordState.stop;
+
 
   RecordPageModelView() {
     initPusher();
   }
+
+  String getRecordTimer() {
+    return _recordDuration.minuteSecondFormat();
+  }
+  
+
   String getFileName() {
     return _currentFile;
   }
 
   String getResultMessage() {
     return _resultMessage;
+  }
+  void _stopTimer() {
+    _timer?.cancel();
+    _recordDuration = 0;
+    notifyListeners();
+  }
+  void _startTimer() {
+    _timer?.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      _recordDuration++;
+      notifyListeners();
+    });
   }
 
   String get buttonText {
@@ -46,12 +70,17 @@ class RecordPageModelView with ChangeNotifier {
       // Start recording
       var path = await FileUtils().localPath;
       var name = FileUtils().randomFileName;
-      _currentFile = '$path/$name.wav';
+      _currentFile = '$path/$name.m4a';
+
+      
+
       await record.start(
         path: _currentFile,
-        encoder: AudioEncoder.wav,
+        encoder: AudioEncoder.aacLc,
       );
       recordState = RecordState.record;
+      _startTimer();
+     
       notifyListeners();
     }
   }
@@ -59,6 +88,7 @@ class RecordPageModelView with ChangeNotifier {
   stopRecord() async {
     await record.stop();
     recordState = RecordState.stop;
+    _stopTimer();
     notifyListeners();
   }
 
@@ -77,7 +107,7 @@ class RecordPageModelView with ChangeNotifier {
 
   Future<void> uploadFile(String filePath) async {
     var request = http.MultipartRequest(
-        'POST', Uri.parse('http://172.19.142.247:3000/upload'));
+        'POST', Uri.parse('http://10.200.2.68:3000/upload'));
 
     // Create a file stream from the file path
     var fileStream =

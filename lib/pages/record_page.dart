@@ -36,6 +36,9 @@ class _RecordPageState extends State<RecordPage> {
     return Column(
       children: [
         Text(context.watch<RecordPageModelView>().getResultMessage()),
+        const SizedBox(height: 8,),
+        Text(context.watch<RecordPageModelView>().getRecordTimer()),
+        const SizedBox(height: 8,),
         ElevatedButton(
           onPressed: () {
             mv.onPressButton();
