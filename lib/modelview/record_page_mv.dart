@@ -107,7 +107,7 @@ class RecordPageModelView with ChangeNotifier {
 
   Future<void> uploadFile(String filePath) async {
     var request = http.MultipartRequest(
-        'POST', Uri.parse('http://10.200.2.68:3000/upload'));
+        'POST', Uri.parse('http://172.19.142.247:3000/upload'));
 
     // Create a file stream from the file path
     var fileStream =

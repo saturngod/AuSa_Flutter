@@ -4,7 +4,6 @@ import 'package:ausa_flutter/modelview/record_page_mv.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 class RecordPage extends StatefulWidget {
   const RecordPage({Key? key}) : super(key: key);
 
