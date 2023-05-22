@@ -58,10 +58,9 @@ class RecordPageModelView with ChangeNotifier {
 
   onPressButton() async {
     if (recordState == RecordState.stop) {
-      await startRecord();
+      startRecord();
     } else {
-      await stopRecord();
-      uploadFile(_currentFile);
+      stopRecord().then (() => uploadFile(_currentFile));
     }
   }
 
@@ -86,14 +85,15 @@ class RecordPageModelView with ChangeNotifier {
   }
 
   stopRecord() async {
-    await record.stop();
-    recordState = RecordState.stop;
-    _stopTimer();
-    notifyListeners();
+    record.stop().then((value) {
+      recordState = RecordState.stop;
+      _stopTimer();
+      notifyListeners();
+    });
   }
 
   initPusher() async {
-    final myChannel = await AuSaPusher.instance().pusher.subscribe(
+    await AuSaPusher.instance().pusher.subscribe(
         channelName: "result-channel",
         onEvent: (event) {
           if (event.eventName == "show") {
@@ -106,6 +106,10 @@ class RecordPageModelView with ChangeNotifier {
   }
 
   Future<void> uploadFile(String filePath) async {
+
+    _resultMessage = "Uploading...";
+    notifyListeners();
+    
     var request = http.MultipartRequest(
         'POST', Uri.parse('http://172.19.142.247:3000/upload'));
 
@@ -131,7 +135,7 @@ class RecordPageModelView with ChangeNotifier {
     // Send the request and get the response
     var response = await request.send();
     final respStr = await response.stream.bytesToString();
-    debugPrint(respStr);
+    
     // Check if the request was successful
     if (response.statusCode == 200) {
       debugPrint('File uploaded successfully');

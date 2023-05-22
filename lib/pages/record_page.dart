@@ -45,8 +45,13 @@ class _RecordPageState extends State<RecordPage> {
           child: Text(context.watch<RecordPageModelView>().buttonText),
         ),
         ElevatedButton(onPressed: () async {
-          await player.play(DeviceFileSource(context.read<RecordPageModelView>().getFileName()));
-        }, child: const Text("Play Audio"))
+          if(player.state == PlayerState.playing) {
+            await player.stop();
+          }
+          else {
+            await player.play(DeviceFileSource(context.read<RecordPageModelView>().getFileName()));
+          }
+        }, child: const Text("RePlay/Stop"))
       ],
     );
   }
